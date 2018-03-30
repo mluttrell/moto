@@ -27,3 +27,9 @@ class ServiceCatalogResponse(BaseResponse):
         return json.dumps({
             'PortfolioDetail': portfolio.response_object
         })
+
+    def list_portfolios(self):
+        portfolios = self.servicecatalog_backend.list_portfolios()
+        return json.dumps({
+            'PortfolioDetails': [portfolio.response_object for portfolio in portfolios]
+        })

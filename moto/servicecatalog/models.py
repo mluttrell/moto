@@ -26,7 +26,6 @@ class Portfolio(BaseModel):
         response_object['ARN'] = self.arn
         response_object['DisplayName'] = self.name
         response_object['Description'] = self.description
-        # response_object['CreatedTime'] = self.uri
         response_object['ProviderName'] = self.provider_name
         return response_object
 
@@ -46,6 +45,9 @@ class ServiceCatalogBackend(BaseBackend):
             raise PortfolioNotFoundException(id)
 
         return self.portfolios[id]
+
+    def list_portfolios(self):
+        return list(self.portfolios.values())
 
 
 available_regions = boto3.session.Session().get_available_regions("servicecatalog")

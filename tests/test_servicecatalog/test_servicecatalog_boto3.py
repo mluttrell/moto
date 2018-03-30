@@ -43,3 +43,18 @@ def test_describe_portfolio_that_doesnt_exist():
     conn.describe_portfolio.when.called_with(
         Id='port-doesnotexist'
     ).should.throw(ClientError, 'Portfolio {0} not found.'.format('port-doesnotexist'))
+
+@mock_servicecatalog
+def test_list_portfolios():
+    conn = boto3.client('servicecatalog', region_name='us-east-1')
+
+    conn.create_portfolio(DisplayName='Test Portfolio 1', ProviderName='Test provider')
+    conn.create_portfolio(DisplayName='Test Portfolio 2', ProviderName='Test provider')
+
+    response = conn.list_portfolios()
+
+    type(response['PortfolioDetails']).should.be(list)
+    len(response['PortfolioDetails']).should.be(2)
+
+    response['PortfolioDetails'][0]['DisplayName'] = 'Test Portfolio 1'
+    response['PortfolioDetails'][1]['DisplayName'] = 'Test Portfolio 2'
