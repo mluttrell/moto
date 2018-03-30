@@ -37,8 +37,11 @@ class ServiceCatalogBackend(BaseBackend):
 
     def create_portfolio(self, name, provider_name, description, idempotency_token):
         portfolio = Portfolio(name, provider_name, description, idempotency_token)
-        self.portfolios[name] = portfolio
+        self.portfolios[portfolio.id] = portfolio
         return portfolio
+
+    def describe_portfolio(self, id):
+        return self.portfolios[id]
 
 
 available_regions = boto3.session.Session().get_available_regions("servicecatalog")

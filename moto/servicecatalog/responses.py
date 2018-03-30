@@ -20,3 +20,10 @@ class ServiceCatalogResponse(BaseResponse):
         return json.dumps({
             'PortfolioDetail': portfolio.response_object
         })
+
+    def describe_portfolio(self):
+        id = self._get_param('Id')
+        portfolio = self.servicecatalog_backend.describe_portfolio(id)
+        return json.dumps({
+            'PortfolioDetail': portfolio.response_object
+        })
