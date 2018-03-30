@@ -1,10 +1,10 @@
 from __future__ import unicode_literals
 
 import boto3
-from botocore.exceptions import ClientError
 
 import sure  # noqa
 from moto import mock_servicecatalog
+from botocore.exceptions import ClientError
 
 
 @mock_servicecatalog
@@ -35,3 +35,11 @@ def test_describe_portfolio():
     response['PortfolioDetail']['DisplayName'].should.equal('Test Portfolio')
     response['PortfolioDetail']['Description'].should.equal('A test portfolio')
     response['PortfolioDetail']['ProviderName'].should.equal('Test provider')
+
+@mock_servicecatalog
+def test_describe_portfolio_that_doesnt_exist():
+    conn = boto3.client('servicecatalog', region_name='us-east-1') 
+
+    conn.describe_portfolio.when.called_with(
+        Id='port-doesnotexist'
+    ).should.throw(ClientError, 'Portfolio {0} not found.'.format('port-doesnotexist'))

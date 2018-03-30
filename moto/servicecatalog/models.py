@@ -3,6 +3,7 @@ from moto.core import BaseBackend, BaseModel
 import boto3
 import random
 import string
+from .exceptions import PortfolioNotFoundException
 
 default_account_id = '012345678910'
 
@@ -41,6 +42,9 @@ class ServiceCatalogBackend(BaseBackend):
         return portfolio
 
     def describe_portfolio(self, id):
+        if id not in self.portfolios:
+            raise PortfolioNotFoundException(id)
+
         return self.portfolios[id]
 
 
