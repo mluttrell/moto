@@ -17,8 +17,8 @@ def test_create_portfolio():
         IdempotencyToken='123456'
     )
 
-    response['PortfolioDetail']['Id'].should.equal('port-gmb6mfkd7tmjc')
-    response['PortfolioDetail']['ARN'].should.equal('arn:aws:catalog:us-east-1:012345678910:portfolio/port-gmb6mfkd7tmjc')
+    response['PortfolioDetail']['Id'].should.match(r'port-[a-z0-9]{13}$')
+    response['PortfolioDetail']['ARN'].should.equal('arn:aws:catalog:us-east-1:012345678910:portfolio/{0}'.format(response['PortfolioDetail']['Id']))
     response['PortfolioDetail']['DisplayName'].should.equal('Test Portfolio')
     response['PortfolioDetail']['Description'].should.equal('A test portfolio')
     response['PortfolioDetail']['ProviderName'].should.equal('Test provider')

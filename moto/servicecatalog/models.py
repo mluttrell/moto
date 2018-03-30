@@ -1,6 +1,8 @@
 
 from moto.core import BaseBackend, BaseModel
 import boto3
+import random
+import string
 
 default_account_id = '012345678910'
 
@@ -12,7 +14,8 @@ class Portfolio(BaseModel):
         self.provider_name = provider_name
         self.description = description
         self.idempotency_token = idempotency_token
-        self.id = 'port-gmb6mfkd7tmjc'
+
+        self.id = 'port-{0}'.format(''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(13)))
         self.arn = 'arn:aws:catalog:us-east-1:{0}:portfolio/{1}'.format(default_account_id, self.id)
 
     @property
