@@ -33,3 +33,18 @@ class ServiceCatalogResponse(BaseResponse):
         return json.dumps({
             'PortfolioDetails': [portfolio.response_object for portfolio in portfolios]
         })
+
+    def create_product(self):
+        name = self._get_param('Name')
+        owner = self._get_param('Owner')
+        distributor = self._get_param('Distributor')
+        description = self._get_param('Description')
+        support_description = self._get_param('SupportDescription')
+        support_email = self._get_param('SupportEmail')
+        support_url = self._get_param('SupportUrl')
+        product_type = self._get_param('ProductType')
+        idempotency_token = self._get_param('IdempotencyToken')
+        provisioning_artifact = self._get_param('ProvisioningArtifactParameters')
+
+        product = self.servicecatalog_backend.create_product(name, owner, distributor, description, support_description, support_email, support_url, product_type, provisioning_artifact, idempotency_token)
+        return json.dumps(product.response_object)
