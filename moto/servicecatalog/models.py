@@ -16,7 +16,7 @@ class Portfolio(BaseModel):
         self.name = name
         self.provider_name = provider_name
         self.description = description
-        
+
         if idempotency_token is None:
             idempotency_token = str(uuid.uuid4())
 
