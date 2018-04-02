@@ -9,11 +9,14 @@ from .exceptions import PortfolioNotFoundException
 
 default_account_id = '012345678910'
 
+
 def generate_service_catalog_id(prefix):
     return '{0}-{1}'.format(prefix, ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(13)))
 
+
 def filter_optional_values(dictionary):
     return {key: value for key, value in dictionary.items() if value is not None}
+
 
 class Portfolio(BaseModel):
 
@@ -21,7 +24,7 @@ class Portfolio(BaseModel):
         self.name = name
         self.provider_name = provider_name
         self.description = description
-        
+
         self.id = generate_service_catalog_id('port')
         self.arn = 'arn:aws:catalog:us-east-1:{0}:portfolio/{1}'.format(default_account_id, self.id)
         self.created_time = datetime.now()
@@ -36,6 +39,7 @@ class Portfolio(BaseModel):
         response_object['ProviderName'] = self.provider_name
         response_object['CreatedTime'] = str(self.created_time)
         return response_object
+
 
 class Product(BaseModel):
 
@@ -86,6 +90,7 @@ class Product(BaseModel):
 
         return response_object
 
+
 class ProvisioningArtifact(BaseModel):
 
     def __init__(self, provisioning_artifact):
@@ -108,6 +113,7 @@ class ProvisioningArtifact(BaseModel):
         response_object = filter_optional_values(response_object)
 
         return response_object
+
 
 class ServiceCatalogBackend(BaseBackend):
 
