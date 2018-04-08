@@ -28,6 +28,7 @@ class Portfolio(BaseModel):
         self.id = generate_service_catalog_id('port')
         self.arn = 'arn:aws:catalog:us-east-1:{0}:portfolio/{1}'.format(default_account_id, self.id)
         self.created_time = datetime.now()
+        self.products = []
 
     @property
     def response_object(self):
@@ -39,6 +40,9 @@ class Portfolio(BaseModel):
         response_object['ProviderName'] = self.provider_name
         response_object['CreatedTime'] = str(self.created_time)
         return response_object
+
+    def add_product(self, product):
+        self.products.append(product)
 
 
 class Product(BaseModel):
@@ -98,7 +102,7 @@ class ProvisioningArtifact(BaseModel):
         self.name = provisioning_artifact.get('Name', None)
         self.description = provisioning_artifact.get('Description', None)
         self.info = provisioning_artifact['Info']
-        self.type = provisioning_artifact['Type']
+        self.type = provisioning_artifact.get('Type', '')
         self.created_time = datetime.now()
 
     @property
@@ -161,6 +165,11 @@ class ServiceCatalogBackend(BaseBackend):
 
         return product
 
+    def associate_product_with_portfolio(self, portfolio_id, product_id):
+        portfolio = self.portfolios[portfolio_id]
+        product = self.products[product_id]
+
+        portfolio.add_product(product)
 
 available_regions = boto3.session.Session().get_available_regions("servicecatalog")
 servicecatalog_backends = {region: ServiceCatalogBackend() for region in available_regions}

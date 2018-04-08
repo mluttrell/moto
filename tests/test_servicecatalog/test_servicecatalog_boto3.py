@@ -143,7 +143,33 @@ def test_create_product():
     provisioning_artifact_detail['Type'].should.equal('CLOUD_FORMATION_TEMPLATE')
     provisioning_artifact_detail['Active'].should.equal(True)
 
+@mock_servicecatalog
+def test_associate_product_with_portfolio():
+    conn = boto3.client('servicecatalog', region_name='us-east-1')
+
+    portfolio_response = conn.create_portfolio(DisplayName='Test Portfolio 1', ProviderName='Test provider')
+
+    product_response = conn.create_product(
+        Name='Test product',
+        Owner='Test owner',
+        ProductType='CLOUD_FORMATION_TEMPLATE',
+        ProvisioningArtifactParameters={
+            'Name': 'Test product version 1',
+            'Info': {
+                'LoadTemplateFromUrl': 'https://s3.amazonaws.com/some_test_bucket/test.json'
+            }
+        }
+    )
+
+    response = conn.associate_product_with_portfolio(
+        ProductId=product_response['ProductViewDetail']['ProductViewSummary']['ProductId'],
+        PortfolioId=portfolio_response['PortfolioDetail']['Id']
+    )
+
+    print(response)
+    len(response.keys()).should.equal(1)
+    response['ResponseMetadata'].should_not.be.empty
 
 @mock_servicecatalog
-def test_create_product_with_default_path():
+def test_product_has_default_path():
     pass

@@ -48,3 +48,10 @@ class ServiceCatalogResponse(BaseResponse):
 
         product = self.servicecatalog_backend.create_product(name, owner, distributor, description, support_description, support_email, support_url, product_type, provisioning_artifact, idempotency_token)
         return json.dumps(product.response_object)
+
+    def associate_product_with_portfolio(self):
+        product_id = self._get_param('ProductId')
+        portfolio_id = self._get_param('PortfolioId')
+
+        self.servicecatalog_backend.associate_product_with_portfolio(portfolio_id, product_id)
+        return json.dumps({})
