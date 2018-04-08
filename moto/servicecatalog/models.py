@@ -62,6 +62,14 @@ class Product(BaseModel):
         self.type = product_type
 
         self.created_time = datetime.now()
+        self.portfolios = []
+
+    def associate_with_portfolio(self, portfolio):
+        self.portfolios.append(portfolio)
+
+    @property
+    def has_default_path(self):
+        return bool(self.portfolios)
 
     @property
     def product_view_detail(self):
@@ -73,7 +81,7 @@ class Product(BaseModel):
             'ShortDescription': self.description,
             'Type': self.type,
             'Distributor': self.distributor,
-            'HasDefaultPath': False,
+            'HasDefaultPath': self.has_default_path,
             'SupportEmail': self.support_email,
             'SupportDescription': self.support_description,
             'SupportUrl': self.support_url
@@ -195,6 +203,7 @@ class ServiceCatalogBackend(BaseBackend):
         product = self.products[product_id]
 
         portfolio.add_product(product)
+        product.associate_with_portfolio(portfolio)
 
     def describe_product_as_admin(self, product_id):
         # TODO: what to do if product does not exist?

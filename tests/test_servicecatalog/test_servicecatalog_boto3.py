@@ -218,9 +218,29 @@ def test_describe_product_as_admin():
     provisioning_artifact_detail['Name'].should.equal('Test product version 1')
     provisioning_artifact_detail['Description'].should.equal('Version 1 description')
 
+@mock_servicecatalog
 def test_describe_product_as_admin_with_default_path():
-    # create portfolio
-    # create product
-    # associate port/product
-    # describe
-    pass
+    conn = boto3.client('servicecatalog', region_name='us-east-1')
+
+    portfolio_response = conn.create_portfolio(DisplayName='Test Portfolio 1', ProviderName='Test provider')
+
+    product_response = conn.create_product(
+        Name='Test product',
+        Owner='Test owner',
+        ProductType='CLOUD_FORMATION_TEMPLATE',
+        ProvisioningArtifactParameters={
+            'Name': 'Test product version 1',
+            'Info': {
+                'LoadTemplateFromUrl': 'https://s3.amazonaws.com/some_test_bucket/test.json'
+            }
+        }
+    )
+
+    conn.associate_product_with_portfolio(
+        ProductId=product_response['ProductViewDetail']['ProductViewSummary']['ProductId'],
+        PortfolioId=portfolio_response['PortfolioDetail']['Id']
+    )
+
+    response = conn.describe_product_as_admin(Id=product_response['ProductViewDetail']['ProductViewSummary']['ProductId']) 
+    product_view_summary = response['ProductViewDetail']['ProductViewSummary']
+    product_view_summary['HasDefaultPath'].should.equal(True)
