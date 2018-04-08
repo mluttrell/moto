@@ -62,14 +62,14 @@ class Product(BaseModel):
         self.type = product_type
 
         self.created_time = datetime.now()
-        self.portfolios = []
+        self.paths = []
 
     def associate_with_portfolio(self, portfolio):
-        self.portfolios.append(portfolio)
+        self.paths.append(portfolio)
 
     @property
     def has_default_path(self):
-        return bool(self.portfolios)
+        return bool(self.paths)
 
     @property
     def product_view_detail(self):
