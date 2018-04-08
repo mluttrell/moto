@@ -171,5 +171,6 @@ class ServiceCatalogBackend(BaseBackend):
 
         portfolio.add_product(product)
 
+
 available_regions = boto3.session.Session().get_available_regions("servicecatalog")
 servicecatalog_backends = {region: ServiceCatalogBackend() for region in available_regions}
