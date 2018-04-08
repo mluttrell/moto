@@ -8,7 +8,6 @@ from botocore.exceptions import ClientError
 
 
 # currently only support for cloudformation, no marketplace
-
 @mock_servicecatalog
 def test_create_portfolio():
     conn = boto3.client('servicecatalog', region_name='us-east-1')
@@ -23,6 +22,7 @@ def test_create_portfolio():
     response['PortfolioDetail']['DisplayName'].should.equal('Test Portfolio')
     response['PortfolioDetail']['Description'].should.equal('A test portfolio')
     response['PortfolioDetail']['ProviderName'].should.equal('Test provider')
+
 
 @mock_servicecatalog
 def test_create_portfolio_with_same_idempotency_token():
@@ -44,6 +44,7 @@ def test_create_portfolio_with_same_idempotency_token():
 
     response2['PortfolioDetail']['Id'].should.equal(response1['PortfolioDetail']['Id'])
 
+
 @mock_servicecatalog
 def test_create_portfolio_with_different_idempotency_token():
     conn = boto3.client('servicecatalog', region_name='us-east-1')
@@ -63,6 +64,7 @@ def test_create_portfolio_with_different_idempotency_token():
 
     response2['PortfolioDetail']['Id'].should_not.equal(response1['PortfolioDetail']['Id'])
 
+
 @mock_servicecatalog
 def test_describe_portfolio():
     conn = boto3.client('servicecatalog', region_name='us-east-1')
@@ -76,13 +78,15 @@ def test_describe_portfolio():
     response['PortfolioDetail']['Description'].should.equal('A test portfolio')
     response['PortfolioDetail']['ProviderName'].should.equal('Test provider')
 
+
 @mock_servicecatalog
 def test_describe_portfolio_that_doesnt_exist():
-    conn = boto3.client('servicecatalog', region_name='us-east-1') 
+    conn = boto3.client('servicecatalog', region_name='us-east-1')
 
     conn.describe_portfolio.when.called_with(
         Id='port-doesnotexist'
     ).should.throw(ClientError, 'Portfolio {0} not found.'.format('port-doesnotexist'))
+
 
 @mock_servicecatalog
 def test_list_portfolios():
@@ -98,6 +102,7 @@ def test_list_portfolios():
 
     response['PortfolioDetails'][0]['DisplayName'] = 'Test Portfolio 1'
     response['PortfolioDetails'][1]['DisplayName'] = 'Test Portfolio 2'
+
 
 @mock_servicecatalog
 def test_create_product():
@@ -145,6 +150,7 @@ def test_create_product():
     provisioning_artifact_detail['Type'].should.equal('CLOUD_FORMATION_TEMPLATE')
     provisioning_artifact_detail['Active'].should.equal(True)
 
+
 @mock_servicecatalog
 def test_associate_product_with_portfolio():
     conn = boto3.client('servicecatalog', region_name='us-east-1')
@@ -171,6 +177,7 @@ def test_associate_product_with_portfolio():
     print(response)
     len(response.keys()).should.equal(1)
     response['ResponseMetadata'].should_not.be.empty
+
 
 @mock_servicecatalog
 def test_describe_product_as_admin():
@@ -218,6 +225,7 @@ def test_describe_product_as_admin():
     provisioning_artifact_detail['Name'].should.equal('Test product version 1')
     provisioning_artifact_detail['Description'].should.equal('Version 1 description')
 
+
 @mock_servicecatalog
 def test_describe_product_as_admin_with_default_path():
     conn = boto3.client('servicecatalog', region_name='us-east-1')
@@ -241,6 +249,6 @@ def test_describe_product_as_admin_with_default_path():
         PortfolioId=portfolio_response['PortfolioDetail']['Id']
     )
 
-    response = conn.describe_product_as_admin(Id=product_response['ProductViewDetail']['ProductViewSummary']['ProductId']) 
+    response = conn.describe_product_as_admin(Id=product_response['ProductViewDetail']['ProductViewSummary']['ProductId'])
     product_view_summary = response['ProductViewDetail']['ProductViewSummary']
     product_view_summary['HasDefaultPath'].should.equal(True)

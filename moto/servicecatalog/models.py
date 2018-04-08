@@ -97,7 +97,6 @@ class Product(BaseModel):
 
         return product_view_detail
 
-
     @property
     def response_object(self):
         response_object = {}
@@ -208,7 +207,6 @@ class ServiceCatalogBackend(BaseBackend):
     def describe_product_as_admin(self, product_id):
         # TODO: what to do if product does not exist?
         return self.products[product_id]
-
 
 
 available_regions = boto3.session.Session().get_available_regions("servicecatalog")
