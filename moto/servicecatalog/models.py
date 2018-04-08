@@ -64,9 +64,7 @@ class Product(BaseModel):
         self.created_time = datetime.now()
 
     @property
-    def response_object(self):
-        response_object = {}
-
+    def product_view_detail(self):
         product_view_summary = {
             'Id': self.id,
             'ProductId': self.product_id,
@@ -84,13 +82,31 @@ class Product(BaseModel):
 
         product_view_detail = {
             'ProductViewSummary': product_view_summary,
-            'Status': 'CREATED',
+            'Status': 'AVAILABLE',
             'ProductARN': self.arn,
             'CreatedTime': str(self.created_time)
         }
 
-        response_object['ProductViewDetail'] = product_view_detail
+        return product_view_detail
+
+
+    @property
+    def response_object(self):
+        response_object = {}
+
+        response_object['ProductViewDetail'] = self.product_view_detail
         response_object['ProvisioningArtifactDetail'] = self.provisioning_artifact.response_object
+
+        return response_object
+
+    @property
+    def response_summary(self):
+        response_object = {}
+
+        response_object['ProductViewDetail'] = self.product_view_detail
+        response_object['ProvisioningArtifactSummaries'] = [
+            self.provisioning_artifact.response_summary
+        ]
 
         return response_object
 
@@ -116,6 +132,15 @@ class ProvisioningArtifact(BaseModel):
         response_object['Description'] = self.description
         response_object = filter_optional_values(response_object)
 
+        return response_object
+
+    @property
+    def response_summary(self):
+        response_object = {}
+        response_object['Id'] = self.id
+        response_object['Name'] = self.name
+        response_object['Description'] = self.description
+        response_object['CreatedTime'] = str(self.created_time)
         return response_object
 
 
@@ -170,6 +195,11 @@ class ServiceCatalogBackend(BaseBackend):
         product = self.products[product_id]
 
         portfolio.add_product(product)
+
+    def describe_product_as_admin(self, product_id):
+        # TODO: what to do if product does not exist?
+        return self.products[product_id]
+
 
 
 available_regions = boto3.session.Session().get_available_regions("servicecatalog")

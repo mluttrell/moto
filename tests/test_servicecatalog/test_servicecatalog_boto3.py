@@ -7,6 +7,8 @@ from moto import mock_servicecatalog
 from botocore.exceptions import ClientError
 
 
+# currently only support for cloudformation, no marketplace
+
 @mock_servicecatalog
 def test_create_portfolio():
     conn = boto3.client('servicecatalog', region_name='us-east-1')
@@ -133,7 +135,7 @@ def test_create_product():
     product_view_summary['SupportDescription'].should.equal('Test support description')
     product_view_summary['SupportUrl'].should.equal('http://test_support_url.com')
 
-    response['ProductViewDetail']['Status'].should.equal('CREATED')
+    response['ProductViewDetail']['Status'].should.equal('AVAILABLE')
     response['ProductViewDetail']['ProductARN'].should.equal('arn:aws:catalog:us-east-1:012345678910:product/{0}'.format(product_view_summary['ProductId']))
 
     provisioning_artifact_detail = response['ProvisioningArtifactDetail']
@@ -171,5 +173,54 @@ def test_associate_product_with_portfolio():
     response['ResponseMetadata'].should_not.be.empty
 
 @mock_servicecatalog
-def test_product_has_default_path():
+def test_describe_product_as_admin():
+    conn = boto3.client('servicecatalog', region_name='us-east-1')
+
+    product_response = conn.create_product(
+        Name='Test product',
+        Owner='Test owner',
+        Description='Test description',
+        Distributor='Test distributor',
+        SupportDescription='Test support description',
+        SupportEmail='test_support_email@someaddress.com',
+        SupportUrl='http://test_support_url.com',
+        ProductType='CLOUD_FORMATION_TEMPLATE',
+        ProvisioningArtifactParameters={
+            'Name': 'Test product version 1',
+            'Description': 'Version 1 description',
+            'Info': {
+                'LoadTemplateFromUrl': 'https://s3.amazonaws.com/some_test_bucket/test.json'
+            },
+            'Type': 'CLOUD_FORMATION_TEMPLATE'
+        }
+    )
+
+    response = conn.describe_product_as_admin(Id=product_response['ProductViewDetail']['ProductViewSummary']['ProductId'])
+
+    product_view_summary = response['ProductViewDetail']['ProductViewSummary']
+    product_view_summary['Id'].should.match(r'prodview-[a-z0-9]{13}$')
+    product_view_summary['ProductId'].should.match(r'prod-[a-z0-9]{13}$')
+    product_view_summary['Name'].should.equal('Test product')
+    product_view_summary['Owner'].should.equal('Test owner')
+    product_view_summary['ShortDescription'].should.equal('Test description')
+    product_view_summary['Type'].should.equal('CLOUD_FORMATION_TEMPLATE')
+    product_view_summary['Distributor'].should.equal('Test distributor')
+    product_view_summary['HasDefaultPath'].should.equal(False)
+    product_view_summary['SupportEmail'].should.equal('test_support_email@someaddress.com')
+    product_view_summary['SupportDescription'].should.equal('Test support description')
+    product_view_summary['SupportUrl'].should.equal('http://test_support_url.com')
+
+    response['ProductViewDetail']['Status'].should.equal('AVAILABLE')
+    response['ProductViewDetail']['ProductARN'].should.equal('arn:aws:catalog:us-east-1:012345678910:product/{0}'.format(product_view_summary['ProductId']))
+
+    provisioning_artifact_detail = response['ProvisioningArtifactSummaries'][0]
+    provisioning_artifact_detail['Id'].should.match(r'pa-[a-z0-9]{13}$')
+    provisioning_artifact_detail['Name'].should.equal('Test product version 1')
+    provisioning_artifact_detail['Description'].should.equal('Version 1 description')
+
+def test_describe_product_as_admin_with_default_path():
+    # create portfolio
+    # create product
+    # associate port/product
+    # describe
     pass

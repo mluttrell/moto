@@ -55,3 +55,9 @@ class ServiceCatalogResponse(BaseResponse):
 
         self.servicecatalog_backend.associate_product_with_portfolio(portfolio_id, product_id)
         return json.dumps({})
+
+    def describe_product_as_admin(self):
+        product_id = self._get_param('Id')
+
+        product = self.servicecatalog_backend.describe_product_as_admin(product_id)
+        return json.dumps(product.response_summary)
